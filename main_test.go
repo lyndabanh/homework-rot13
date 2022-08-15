@@ -6,26 +6,39 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 )
 
 var tests = []struct {
 	input string
 	want  string
+	err   error
 }{
-	{"hello", "uryyb"},
-	{"HELLO", "URYYB"},
-	{"", ""},
-	{"incomprehensibility", "vapbzcerurafvovyvgl"},
-	{"Hello there", "Uryyb gurer"},
-	{"Hello there!", "word contains an invalid character"},
-	{"y2k", "word contains an invalid character"},
+	{input: "hello", want: "uryyb", err: nil},
+	{input: "HELLO", want: "URYYB", err: nil},
+	{input: "", want: "", err: nil},
+	{input: "incomprehensibility", want: "vapbzcerurafvovyvgl", err: nil},
+	{input: "Hello there", want: "Uryyb gurer", err: nil},
+	{input: "Hello there!", want: "", err: fmt.Errorf("word contains an invalid character")},
+	{input: "y2k", want: "", err: fmt.Errorf("word contains an invalid character")},
 }
 
 func TestConvert(t *testing.T) {
 	for _, test := range tests {
-		if got := convert(test.input, makeKey()); got != test.want {
-			t.Errorf("convert(%q) = %q", test.input, got)
+		got, got_err := convert(test.input, makeKey())
+		if got != test.want {
+			t.Errorf("convert(%q) = %q, expected: %q", test.input, got, test.want)
+		}
+
+		if test.err == nil && got_err == nil {
+			continue
+		} else if test.err == nil && got_err != nil {
+			t.Errorf("Expected no error, but got %#v", got_err)
+		} else if test.err != nil && got_err == nil {
+			t.Errorf("Expected error %#v, but got nil", test.err)
+		} else if test.err.Error() != got_err.Error() {
+			t.Errorf("Expected error %#v but got %#v", test.err, got_err)
 		}
 	}
 }
