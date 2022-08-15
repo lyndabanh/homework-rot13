@@ -25,10 +25,11 @@ var tests = []struct {
 }
 
 func TestConvert(t *testing.T) {
+	k := makeKey()
 	for _, test := range tests {
-		got, got_err := convert(test.input, makeKey())
+		got, got_err := k.encrypt(test.input, k.encryptionKey)
 		if got != test.want {
-			t.Errorf("convert(%q) = %q, expected: %q", test.input, got, test.want)
+			t.Errorf("encrypt(%q) = %q, expected: %q", test.input, got, test.want)
 		}
 
 		if test.err == nil && got_err == nil {
