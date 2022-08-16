@@ -56,14 +56,15 @@ type Key struct {
 func main() {
 	k := makeKey()
 
+	fmt.Println(k.encrypt("hello"))
+	encryptedWord, err := k.encrypt("hello")
+	fmt.Println(k.decrypt(encryptedWord))
+	_ = err
+
+	// Comparing encryption and decryption keys
 	if reflect.DeepEqual(k.encryptionKey, k.decryptionKey) {
 		fmt.Println("encryption and decryption keys are the same")
 	} else {
 		fmt.Println("encryption and decryption keys are not the same")
 	}
-
-	fmt.Println(k.encrypt("hello"))
-	encryptedWord, err := k.encrypt("hello")
-	fmt.Println(k.decrypt(encryptedWord))
-	fmt.Println(err)
 }
