@@ -6,8 +6,7 @@ import (
 	"strings"
 )
 
-// using *Key in function signature and return &Key
-func makeKey() Key {
+func makeKey() *Key {
 	alphabet1 := strings.Split("abcdefghijklmnopqrstuvwxyz", "")
 	alphabet2 := strings.Split("nopqrstuvwxyzabcdefghijklm", "")
 
@@ -23,34 +22,30 @@ func makeKey() Key {
 		revKey[v] = k
 	}
 
-	return Key{
+	return &Key{
 		encryptionKey: key,
 		decryptionKey: revKey,
 	}
 }
 
-func (k Key) encrypt(word string, key map[string]string) (string, error) {
-	var encryptedWord []string
+func transform(word string, key map[string]string) (string, error) {
+	var transformedWord []string
 	for _, letter := range strings.Split(word, "") {
 		if _, ok := key[letter]; ok {
-			encryptedWord = append(encryptedWord, key[letter])
+			transformedWord = append(transformedWord, key[letter])
 		} else {
 			return "", fmt.Errorf("word contains an invalid character")
 		}
 	}
-	return strings.Join(encryptedWord, ""), nil
+	return strings.Join(transformedWord, ""), nil
 }
 
-func (k Key) decrypt(word string, key map[string]string) (string, error) {
-	var decryptedWord []string
-	for _, letter := range strings.Split(word, "") {
-		if _, ok := key[letter]; ok {
-			decryptedWord = append(decryptedWord, key[letter])
-		} else {
-			return "", fmt.Errorf("word contains an invalid character")
-		}
-	}
-	return strings.Join(decryptedWord, ""), nil
+func (k Key) encrypt(word string) (string, error) {
+	return transform(word, k.encryptionKey)
+}
+
+func (k Key) decrypt(word string) (string, error) {
+	return transform(word, k.decryptionKey)
 }
 
 type Key struct {
@@ -58,15 +53,6 @@ type Key struct {
 	decryptionKey map[string]string
 }
 
-func (k Key) getEncryptionKey() map[string]string {
-	return k.encryptionKey
-}
-
-func (k Key) getDecryptionKey() map[string]string {
-	return k.decryptionKey
-}
-
-// k.covert("hello")
 func main() {
 	k := makeKey()
 
@@ -76,14 +62,8 @@ func main() {
 		fmt.Println("encryption and decryption keys are not the same")
 	}
 
-	fmt.Println(k.encrypt("hello", k.getEncryptionKey()))
-	encryptedWord, err := k.encrypt("hello", k.getEncryptionKey())
-	fmt.Println(k.decrypt(encryptedWord, k.getDecryptionKey()))
+	fmt.Println(k.encrypt("hello"))
+	encryptedWord, err := k.encrypt("hello")
+	fmt.Println(k.decrypt(encryptedWord))
 	fmt.Println(err)
 }
-
-// find a way to not have to explicity include capital letters
-// make decryption key from the encryption key (instead of having 2 functions)
-// make a struct that contains both the encryption key and decryption key
-// make encrypt and decrypt be methods on that struct (your struct can be handlers)
-// Make 'convert' a method of Key
